@@ -8,9 +8,8 @@ export default defineConfig({
     environment: "node",
     coverage: {
       enabled: env.CI === "true",
-      provider: "istanbul",
       include: ["src/**"],
-      exclude: ["**/debug-tools/**", "**/test/**"],
+      exclude: ["**/debug-tools/**", "**/__tests__/**"],
     },
   },
 });
