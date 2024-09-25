@@ -7,6 +7,7 @@
     "type": "git",
     "url": "git+https://github.com/cloudscape-design/build-tools.git"
   },
+  "homepage": "https://cloudscape.design",
   "scripts": {
     "prepare": "husky install",
     "lint": "eslint --ignore-path .gitignore --ext js,ts .",
