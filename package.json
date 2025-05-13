@@ -16,6 +16,9 @@
     "postbuild": "cp package.json NOTICE README.md LICENSE lib",
     "test": "vitest run"
   },
+  "dependencies": {
+    "minimatch": "^10.0.1"
+  },
   "peerDependencies": {
     "stylelint": "^16.8.1"
   },
