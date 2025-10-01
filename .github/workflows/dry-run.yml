@@ -3,6 +3,9 @@
 name: Dry-run
 on:
   workflow_dispatch:
+  merge_group:
+    branches:
+      - main
   pull_request:
     branches:
       - main
