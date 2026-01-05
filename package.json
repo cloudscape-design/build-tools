@@ -14,9 +14,9 @@
   "scripts": {
     "prepare": "husky",
     "lint": "eslint --ignore-path .gitignore --ext js,ts .",
-    "prebuild": "rm -rf lib && mkdir lib",
-    "build": "cp -r src/* lib",
-    "postbuild": "cp package.json NOTICE README.md LICENSE lib",
+    "prebuild": "echo 'prebuild skipped'",
+    "build": "echo 'build skipped'",
+    "postbuild": "echo 'postbuild skipped'",
     "test": "vitest run"
   },
   "dependencies": {
