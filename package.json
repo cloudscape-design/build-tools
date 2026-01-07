@@ -3,6 +3,9 @@
   "version": "3.0.0",
   "license": "Apache-2.0",
   "type": "module",
+  "exports": {
+    "./*": "./lib/*"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/cloudscape-design/build-tools.git"
@@ -11,9 +14,7 @@
   "scripts": {
     "prepare": "husky",
     "lint": "eslint --ignore-path .gitignore --ext js,ts .",
-    "prebuild": "rm -rf lib && mkdir lib",
-    "build": "cp -r src/* lib",
-    "postbuild": "cp package.json NOTICE README.md LICENSE lib",
+    "build": "echo 'build skipped'",
     "test": "vitest run"
   },
   "dependencies": {
