@@ -4,7 +4,8 @@
   "license": "Apache-2.0",
   "type": "module",
   "exports": {
-    "./*": "./lib/*"
+    "./*": "./lib/*",
+    "./dev-pages-utils": "./lib/dev-pages-utils/index.ts"
   },
   "repository": {
     "type": "git",
