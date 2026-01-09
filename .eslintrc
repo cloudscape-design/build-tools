@@ -1,10 +1,14 @@
 {
   "extends": ["eslint:recommended", "plugin:prettier/recommended"],
+  "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": "latest",
     "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
   },
-  "plugins": ["unicorn", "header"],
+  "plugins": ["unicorn", "header", "@typescript-eslint"],
   "rules": {
     "header/header": [
       "error",
@@ -12,5 +16,7 @@
       [" Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.", " SPDX-License-Identifier: Apache-2.0"],
     ],
     "no-warning-comments": "warn",
-  },
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-namespace": "off"
+  }
 }
