@@ -1,6 +1,6 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-import flatten from "lodash/flatten";
+import flatten from "lodash/flatten.js";
 
 export type ComponentPermutations<Props> = {
   [prop in keyof Props]: ReadonlyArray<Props[prop]>;
