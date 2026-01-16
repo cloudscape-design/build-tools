@@ -4,8 +4,15 @@
   "license": "Apache-2.0",
   "type": "module",
   "exports": {
-    "./*": "./lib/*",
-    "./dev-pages-utils": "./lib/dev-pages-utils/index.ts"
+    "./lib/dev-pages-utils": {
+      "types": "./lib/dev-pages-utils/index.d.ts",
+      "default": "./lib/dev-pages-utils/index.js"
+    },
+    "./dev-pages-utils": {
+      "types": "./lib/dev-pages-utils/index.d.ts",
+      "default": "./lib/dev-pages-utils/index.js"
+    },
+    "./*": "./lib/*"
   },
   "repository": {
     "type": "git",
@@ -15,7 +22,8 @@
   "scripts": {
     "prepare": "husky",
     "lint": "eslint --ignore-path .gitignore --ext js,ts .",
-    "build": "echo 'build skipped'",
+    "prebuild": "rm -rf lib && mkdir lib",
+    "build": "cp -R src/* lib/ && rm -r lib/dev-pages-utils && tsc -p tsconfig.json",
     "test": "vitest run"
   },
   "dependencies": {
@@ -50,6 +58,7 @@
     "lodash": "^4.17.21",
     "prettier": "^3.3.3",
     "react": "16.14.0",
+    "typescript": "^5.0.0",
     "vitest": "^4.0.6"
   },
   "lint-staged": {

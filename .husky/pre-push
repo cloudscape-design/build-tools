@@ -1,0 +1,8 @@
+npm run build
+
+if git diff-index --quiet HEAD;
+then
+  git add lib/
+  git commit -m "chore: auto update built files" 
+  exit 1
+fi
