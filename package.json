@@ -16,7 +16,7 @@
     "prepare": "husky",
     "lint": "eslint --ignore-path .gitignore --ext js,ts .",
     "prebuild": "rm -rf lib && mkdir lib",
-    "build": "cp -R src/* lib/",
+    "build": "cp -R src/* lib/ && rm -r lib/dev-pages-utils && tsc -p tsconfig.json",
     "test": "vitest run"
   },
   "dependencies": {
