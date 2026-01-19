@@ -19,6 +19,9 @@ function formatValue(_key: string, value: any) {
   return value;
 }
 
+// Maximum number of permutations that can be rendered in a single view.
+// This limit prevents performance issues when generating large numbers of component variations.
+// See: https://github.com/cloudscape-design/components/pull/3126
 const maximumPermutations = 276;
 
 export function PermutationsView<T>({ permutations, render }: PermutationsViewProps<T>) {
