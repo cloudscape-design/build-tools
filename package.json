@@ -16,10 +16,11 @@
     "prepare": "husky",
     "lint": "eslint --ignore-path .gitignore --ext js,ts .",
     "prebuild": "rm -rf lib && mkdir lib",
-    "build": "cp -R src/* lib/",
+    "build": "cp -R src/* lib/ && rm -r lib/dev-pages-utils && tsc -p tsconfig.json",
     "test": "vitest run"
   },
   "dependencies": {
+    "lodash": "^4.0.0",
     "lodash": "^4.0.0",
     "minimatch": "^10.0.1"
   },
@@ -28,7 +29,9 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.17.21",
+    "@types/lodash": "^4.17.21",
     "@types/node": "^20.19.24",
+    "@types/react": "^16.14.0",
     "@types/react": "^16.14.0",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
