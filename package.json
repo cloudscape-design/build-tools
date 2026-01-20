@@ -4,6 +4,10 @@
   "license": "Apache-2.0",
   "type": "module",
   "exports": {
+    "./lib/dev-pages-utils": {
+      "types": "./lib/dev-pages-utils/index.d.ts",
+      "default": "./lib/dev-pages-utils/index.js"
+    },
     "./lib/*": "./lib/*",
     "./*": "./lib/*"
   },
