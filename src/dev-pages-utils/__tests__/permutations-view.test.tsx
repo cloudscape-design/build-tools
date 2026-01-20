@@ -85,4 +85,27 @@ describe("PermutationsView", () => {
 
     expect(result.props.children).toHaveLength(276);
   });
+
+  test("renders with horizontal direction", () => {
+    const permutations = [{ label: "First" }];
+
+    const result = PermutationsView({
+      permutations,
+      render: props => <div>{props.label}</div>,
+      direction: "horizontal",
+    });
+
+    expect(result.props.style.flexDirection).toBe("row");
+  });
+
+  test("defaults to vertical direction", () => {
+    const permutations = [{ label: "First" }];
+
+    const result = PermutationsView({
+      permutations,
+      render: props => <div>{props.label}</div>,
+    });
+
+    expect(result.props.style.flexDirection).toBe("column");
+  });
 });

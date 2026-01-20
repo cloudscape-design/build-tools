@@ -6,6 +6,7 @@ import React from "react";
 export interface PermutationsViewProps<T> {
   permutations: ReadonlyArray<T>;
   render: (_props: T, _index?: number) => React.ReactElement;
+  direction?: "vertical" | "horizontal";
 }
 
 function formatValue(_key: string, value: any) {
@@ -24,13 +25,13 @@ function formatValue(_key: string, value: any) {
 // See: https://github.com/cloudscape-design/components/pull/3126
 const maximumPermutations = 276;
 
-export function PermutationsView<T>({ permutations, render }: PermutationsViewProps<T>) {
+export function PermutationsView<T>({ permutations, render, direction = "vertical" }: PermutationsViewProps<T>) {
   if (permutations.length > maximumPermutations) {
     throw new Error(`Too many permutations (${permutations.length}), maximum is ${maximumPermutations}`);
   }
-
+  const flexDirection = direction === "vertical" ? "column" : "row";
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+    <div style={{ display: "flex", flexDirection: flexDirection, gap: "16px" }}>
       {permutations.map((permutation, index) => {
         const id = JSON.stringify(permutation, formatValue);
         return (
