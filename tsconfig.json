@@ -9,9 +9,8 @@
     "strict": true,
     "declaration": true,
     "jsx": "react",
-    "rootDir": "src",
-    "outDir": "lib/",
+    "rootDir": "lib",
   },
-  "include": ["src", "types"],
+  "include": ["lib", "types"],
   "exclude": ["**/__tests__/**"]
 }
