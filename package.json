@@ -3,6 +3,9 @@
   "version": "3.0.0",
   "license": "Apache-2.0",
   "type": "module",
+  "bin": {
+    "prepare-package-lock": "./lib/scripts/prepare-package-lock.js"
+  },
   "exports": {
     "./lib/dev-pages-utils": {
       "types": "./lib/dev-pages-utils/index.d.ts",
@@ -19,8 +22,9 @@
   "scripts": {
     "prepare": "husky",
     "lint": "eslint --ignore-path .gitignore --ext js,ts .",
-    "prebuild": "rm -rf lib && mkdir lib",
-    "build": "cp -R src/* lib/ && rm -r lib/dev-pages-utils && tsc -p tsconfig.json",
+    "prebuild": "rm -rf lib/dev-pages-utils && mkdir lib/dev-pages-utils",
+    "build": "npm run build:dev-pages-utils",
+    "build:dev-pages-utils": "tsc -p tsconfig.json",
     "test": "vitest run"
   },
   "dependencies": {
