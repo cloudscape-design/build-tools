@@ -1,3 +1,0 @@
-npm run build
-git add lib/
-git commit -m "chore: auto update built files" > /dev/null 2>&1 || true

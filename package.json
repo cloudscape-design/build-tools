@@ -22,9 +22,7 @@
   "scripts": {
     "prepare": "husky",
     "lint": "eslint --ignore-path .gitignore --ext js,ts .",
-    "prebuild": "rm -rf lib/dev-pages-utils && mkdir lib/dev-pages-utils",
-    "build": "npm run build:dev-pages-utils",
-    "build:dev-pages-utils": "tsc -p tsconfig.json",
+    "build": "echo 'build is skipped'",
     "test": "vitest run"
   },
   "dependencies": {
