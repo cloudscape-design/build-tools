@@ -9,9 +9,9 @@
       "jsx": true
     }
   },
-  "plugins": ["unicorn", "header", "@typescript-eslint"],
+  "plugins": ["unicorn", "@tony.ganchev/header", "@typescript-eslint"],
   "rules": {
-    "header/header": [
+    "@tony.ganchev/header/header": [
       "error",
       "line",
       [" Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.", " SPDX-License-Identifier: Apache-2.0"],
