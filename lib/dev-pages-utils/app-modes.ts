@@ -22,8 +22,7 @@ export interface AppUrlParams {
 }
 
 /**
- * Shared shape for a dev-pages app context. Extend the params with package-specific fields via
- * the generic `T` (e.g. useAppContext<{ visualRefresh: boolean }>()).
+ * Shared shape for a dev-pages app context.
  */
 export interface AppContextType<T = unknown> {
   pageId?: string;
@@ -42,9 +41,7 @@ export const appModesDefaults: AppUrlParams = {
 };
 
 /**
- * Parses dev-pages URL params into a typed object. Every known param lives on AppUrlParams;
- * params absent from the URL fall back to appModesDefaults. String values of "true"/"false" are
- * cast to booleans, and an unrecognized `theme` falls back to Theme.Default.
+ * Parses dev-pages URL params into a typed object.
  */
 export function parseAppModes(searchParams: URLSearchParams): AppUrlParams {
   const queryParams: Record<string, any> = { ...appModesDefaults };
@@ -60,13 +57,13 @@ export function parseAppModes(searchParams: URLSearchParams): AppUrlParams {
   return queryParams as AppUrlParams;
 }
 
-/** Serializes params to a query record. Emits every param (skipping only `undefined` values). */
+/** 
+ * Serializes params to a query record. Skips undefined values.
+ */
 export function formatAppModes<T extends object>(params: T): Record<string, string> {
   const query: Record<string, string> = {};
   for (const [key, value] of Object.entries(params)) {
-    if (value === undefined) {
-      continue;
-    }
+    if (value === undefined) continue;
     query[key] = String(value);
   }
   return query;
