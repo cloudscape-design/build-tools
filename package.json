@@ -72,6 +72,9 @@
     ],
     "*.{scss,css}": [
       "stylelint --fix"
+    ],
+    "package-lock.json": [
+      "node ./lib/scripts/prepare-package-lock.js"
     ]
   }
 }
