@@ -16,7 +16,7 @@ export interface AppUrlParams {
   density: Density;
   direction: "ltr" | "rtl";
   motionDisabled: boolean;
-  theme: Theme;
+  theme?: Theme;
   i18n?: boolean;
   screenshotMode?: boolean;
 }
@@ -35,7 +35,6 @@ export const appModesDefaults: AppUrlParams = {
   density: Density.Comfortable,
   direction: "ltr",
   motionDisabled: false,
-  theme: Theme.Default,
   i18n: true,
   screenshotMode: false,
 };
@@ -90,6 +89,6 @@ export function applyAppModes(params: AppUrlParams, target: Element = document.b
   applyMode(params.mode, target);
   applyDensity(params.density, target);
   disableMotion(params.motionDisabled, target);
-  applyTheme(params.theme, target);
+  applyTheme(params.theme ?? null, target);
   document.documentElement.setAttribute("dir", params.direction);
 }

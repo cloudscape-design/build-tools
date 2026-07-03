@@ -13,7 +13,6 @@ describe("formatAppModes", () => {
       density: "comfortable",
       direction: "ltr",
       motionDisabled: "false",
-      theme: "default",
       i18n: "true",
       screenshotMode: "false",
     });
@@ -33,7 +32,6 @@ describe("updateAppModes", () => {
       density: "comfortable",
       direction: "ltr",
       motionDisabled: "false",
-      theme: "default",
       i18n: "true",
       screenshotMode: "false",
     });
