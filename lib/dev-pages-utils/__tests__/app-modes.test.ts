@@ -4,7 +4,25 @@ import { describe, expect, test, vi } from "vitest";
 
 import { Density, Mode } from "@cloudscape-design/global-styles";
 
-import { appModesDefaults, formatAppModes, updateAppModes } from "../app-modes";
+import { appModesDefaults, formatAppModes, parseAppModes, updateAppModes } from "../app-modes";
+
+describe("parseAppModes", () => {
+  test("casts boolean strings and applies defaults for absent params", () => {
+    const params = parseAppModes(new URLSearchParams("mode=dark&motionDisabled=true"));
+    expect(params.mode).toBe("dark");
+    expect(params.motionDisabled).toBe(true);
+    expect(params.density).toBe("comfortable"); // default
+    expect(params.i18n).toBe(true); // default
+  });
+
+  test("keeps a valid theme", () => {
+    expect(parseAppModes(new URLSearchParams("theme=one-theme")).theme).toBe("one-theme");
+  });
+
+  test("leaves theme undefined when absent", () => {
+    expect(parseAppModes(new URLSearchParams("")).theme).toBeUndefined();
+  });
+});
 
 describe("formatAppModes", () => {
   test("serializes every param to a string (full URL, no omission)", () => {

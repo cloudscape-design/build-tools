@@ -10,6 +10,7 @@ import {
   Mode,
   Theme,
 } from "@cloudscape-design/global-styles";
+import mapValues from "lodash/mapValues";
 
 export interface AppUrlParams {
   mode: Mode;
@@ -44,16 +45,18 @@ export const appModesDefaults: AppUrlParams = {
  */
 export function parseAppModes(searchParams: URLSearchParams): AppUrlParams {
   const queryParams: Record<string, any> = { ...appModesDefaults };
-  searchParams.forEach((value, key) => {
-    queryParams[key] = value === "true" || value === "false" ? value === "true" : value;
-  });
+  searchParams.forEach((value, key) => (queryParams[key] = value));
 
   const themeValues = Object.values(Theme) as string[];
-  if (!themeValues.includes(queryParams.theme)) {
-    queryParams.theme = Theme.Default;
-  }
-
-  return queryParams as AppUrlParams;
+  return mapValues(queryParams, (value, key) => {
+    if (key === "theme") {
+      return themeValues.includes(value) ? value : Theme.Default;
+    }
+    if (value === "true" || value === "false") {
+      return value === "true";
+    }
+    return value;
+  }) as AppUrlParams;
 }
 
 /** 
