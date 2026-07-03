@@ -47,11 +47,7 @@ export function parseAppModes(searchParams: URLSearchParams): AppUrlParams {
   const queryParams: Record<string, any> = { ...appModesDefaults };
   searchParams.forEach((value, key) => (queryParams[key] = value));
 
-  const themeValues = Object.values(Theme) as string[];
-  return mapValues(queryParams, (value, key) => {
-    if (key === "theme") {
-      return themeValues.includes(value) ? value : Theme.Default;
-    }
+  return mapValues(queryParams, value => {
     if (value === "true" || value === "false") {
       return value === "true";
     }
@@ -59,7 +55,7 @@ export function parseAppModes(searchParams: URLSearchParams): AppUrlParams {
   }) as AppUrlParams;
 }
 
-/** 
+/**
  * Serializes params to a query record. Skips undefined values.
  */
 export function formatAppModes<T extends object>(params: T): Record<string, string> {
