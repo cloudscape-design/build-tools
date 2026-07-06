@@ -22,9 +22,6 @@ export interface AppUrlParams {
   screenshotMode?: boolean;
 }
 
-/**
- * Shared shape for a dev-pages app context.
- */
 export interface AppContextType<T = unknown> {
   pageId?: string;
   urlParams: AppUrlParams & T;
@@ -40,9 +37,6 @@ export const appModesDefaults: AppUrlParams = {
   screenshotMode: false,
 };
 
-/**
- * Parses dev-pages URL params into a typed object.
- */
 export function parseAppModes(searchParams: URLSearchParams): AppUrlParams {
   const queryParams: Record<string, any> = { ...appModesDefaults };
   searchParams.forEach((value, key) => (queryParams[key] = value));
@@ -55,9 +49,6 @@ export function parseAppModes(searchParams: URLSearchParams): AppUrlParams {
   }) as AppUrlParams;
 }
 
-/**
- * Serializes params to a query record. Skips undefined values.
- */
 export function formatAppModes<T extends object>(params: T): Record<string, string> {
   const query: Record<string, string> = {};
   for (const [key, value] of Object.entries(params)) {
@@ -67,11 +58,7 @@ export function formatAppModes<T extends object>(params: T): Record<string, stri
   return query;
 }
 
-/**
- * Router-agnostic setter for app-modes URL state: serializes `current` merged with `next`, writes
- * it through the caller-provided `setQuery` (e.g. react-router's `setSearchParams`), and reloads
- * the page when `direction` changed.
- */
+// Reloads on direction change: some components read the document `dir` only at mount.
 export function updateAppModes(
   current: AppUrlParams,
   next: Partial<AppUrlParams>,
