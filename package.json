@@ -62,7 +62,8 @@
     "react": "16.14.0",
     "typescript": "^5.0.0",
     "vitest": "^4.1.8",
-    "react-router-dom": "^6.30.4"
+    "react-router-dom": "^6.30.4",
+    "react-dom": "16.14.0"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
