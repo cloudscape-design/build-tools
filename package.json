@@ -35,6 +35,14 @@
     "react-router-dom": ">=6.0.0",
     "stylelint": "^16.8.1"
   },
+  "peerDependenciesMeta": {                                                   
+    "react": {                                                                
+      "optional": true                                                        
+    },                                                                        
+    "react-router-dom": {                                                     
+      "optional": true                                                        
+    }                                                                         
+  },
   "devDependencies": {
     "@cloudscape-design/global-styles": "^1.0.62",
     "@tony.ganchev/eslint-plugin-header": "^3.3.1",
