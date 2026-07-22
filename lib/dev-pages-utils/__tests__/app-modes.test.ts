@@ -2,8 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { describe, expect, test, vi } from "vitest";
 
-import { Density, Mode } from "@cloudscape-design/global-styles";
-
 import { appModesDefaults, formatAppModes, parseAppModes, updateAppModes } from "../app-modes";
 
 describe("parseAppModes", () => {
@@ -37,14 +35,14 @@ describe("formatAppModes", () => {
   });
 
   test("skips undefined values", () => {
-    expect(formatAppModes({ mode: Mode.Dark, appLayoutToolbar: undefined })).toEqual({ mode: "dark" });
+    expect(formatAppModes({ mode: "dark", appLayoutToolbar: undefined })).toEqual({ mode: "dark" });
   });
 });
 
 describe("updateAppModes", () => {
   test("writes the full serialized query through setQuery", () => {
     const setQuery = vi.fn();
-    updateAppModes(appModesDefaults, { mode: Mode.Dark }, setQuery);
+    updateAppModes(appModesDefaults, { mode: "dark" }, setQuery);
     expect(setQuery).toHaveBeenCalledWith({
       mode: "dark",
       density: "comfortable",
@@ -58,7 +56,7 @@ describe("updateAppModes", () => {
   test("does not reload when direction is unchanged", () => {
     const reload = vi.fn();
     vi.stubGlobal("window", { location: { reload } });
-    updateAppModes(appModesDefaults, { mode: Mode.Dark }, vi.fn());
+    updateAppModes(appModesDefaults, { mode: "dark" }, vi.fn());
     expect(reload).not.toHaveBeenCalled();
     vi.unstubAllGlobals();
   });
@@ -74,7 +72,7 @@ describe("updateAppModes", () => {
   test("does not reload when next omits direction even if current is non-default", () => {
     const reload = vi.fn();
     vi.stubGlobal("window", { location: { reload } });
-    updateAppModes({ ...appModesDefaults, direction: "rtl" }, { density: Density.Compact }, vi.fn());
+    updateAppModes({ ...appModesDefaults, direction: "rtl" }, { density: "compact" }, vi.fn());
     expect(reload).not.toHaveBeenCalled();
     vi.unstubAllGlobals();
   });

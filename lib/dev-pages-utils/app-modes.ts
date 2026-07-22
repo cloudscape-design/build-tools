@@ -1,23 +1,19 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-  applyDensity,
-  applyMode,
-  applyTheme,
-  disableMotion,
-  Density,
-  Mode,
-  Theme,
-} from "@cloudscape-design/global-styles";
 import mapValues from "lodash/mapValues";
 
+// Keep in sync with the Mode/Density/Theme enums in @cloudscape-design/global-styles.
+export type AppMode = "light" | "dark";
+export type AppDensity = "comfortable" | "compact";
+export type AppTheme = "default" | "visual-refresh" | "one-theme";
+
 export interface AppUrlParams {
-  mode: Mode;
-  density: Density;
+  mode: AppMode;
+  density: AppDensity;
   direction: "ltr" | "rtl";
   motionDisabled: boolean;
-  theme?: Theme;
+  theme?: AppTheme;
   i18n?: boolean;
   screenshotMode?: boolean;
 }
@@ -28,9 +24,11 @@ export interface AppContextType<T = unknown> {
   setUrlParams: (newParams: Partial<AppUrlParams & T>) => void;
 }
 
+export type ApplyAppModes<T = unknown> = (params: AppUrlParams & T, target?: Element) => void;
+
 export const appModesDefaults: AppUrlParams = {
-  mode: Mode.Light,
-  density: Density.Comfortable,
+  mode: "light",
+  density: "comfortable",
   direction: "ltr",
   motionDisabled: false,
   i18n: true,
@@ -69,12 +67,4 @@ export function updateAppModes(
   if ((next.direction ?? current.direction) !== current.direction) {
     window.location.reload();
   }
-}
-
-export function applyAppModes(params: AppUrlParams, target: Element = document.body): void {
-  applyMode(params.mode, target);
-  applyDensity(params.density, target);
-  disableMotion(params.motionDisabled, target);
-  applyTheme(params.theme ?? null, target);
-  document.documentElement.setAttribute("dir", params.direction);
 }
