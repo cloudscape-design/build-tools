@@ -20,8 +20,6 @@ const AppModesContext = createContext<AppContextType>({
 export function AppModesProvider({ children, applyModes }: { children: ReactNode; applyModes?: ApplyAppModes }) {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Depend on the whole object (memoized on the query) rather than enumerating params, so params
-  // added to parseAppModes re-apply without touching this file or its consumers.
   const urlParams = useMemo(() => parseAppModes(searchParams), [searchParams]);
 
   const setUrlParams = useCallback(
