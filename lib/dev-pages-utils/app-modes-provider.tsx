@@ -17,7 +17,7 @@ const AppModesContext = createContext<AppContextType>({
   setUrlParams: () => {},
 });
 
-export function AppModesProvider({ children, applyModes }: { children: ReactNode; applyModes?: ApplyAppModes }) {
+export function AppModesProvider({ children, applyModes }: { children: ReactNode; applyModes: ApplyAppModes }) {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const urlParams = useMemo(() => parseAppModes(searchParams), [searchParams]);
@@ -29,7 +29,7 @@ export function AppModesProvider({ children, applyModes }: { children: ReactNode
 
   useEffect(() => {
     document.documentElement.setAttribute("dir", urlParams.direction);
-    applyModes?.(urlParams);
+    applyModes(urlParams);
   }, [urlParams, applyModes]);
 
   const value = useMemo<AppContextType>(() => ({ urlParams, setUrlParams }), [urlParams, setUrlParams]);
