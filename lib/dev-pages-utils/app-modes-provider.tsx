@@ -1,7 +1,6 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
+import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 import {
   ApplyAppModes,
@@ -12,13 +11,56 @@ import {
   updateAppModes,
 } from "./app-modes.js";
 
+/**
+ * Reads the query-string portion of the current hash, e.g. for
+ * `/#/some/path?mode=dark` it returns `URLSearchParams("mode=dark")`.
+ */
+function getHashSearchParams(): URLSearchParams {
+  const hash = window.location.hash; // e.g. "#/page?mode=dark"
+  const queryIndex = hash.indexOf("?");
+  return new URLSearchParams(queryIndex !== -1 ? hash.slice(queryIndex + 1) : "");
+}
+
+/**
+ * Writes a new set of query params into the hash, preserving the path portion,
+ * e.g. `/#/some/path` + `{ mode: "dark" }` → `/#/some/path?mode=dark`.
+ */
+function setHashSearchParams(params: Record<string, string>): void {
+  const hash = window.location.hash;
+  const queryIndex = hash.indexOf("?");
+  const hashPath = queryIndex !== -1 ? hash.slice(0, queryIndex) : hash;
+  const search = new URLSearchParams(params).toString();
+  const newHash = search ? `${hashPath}?${search}` : hashPath;
+  window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}${newHash}`);
+  // Dispatch a hashchange event so any other listeners (including our own hook) stay in sync.
+  window.dispatchEvent(new HashChangeEvent("hashchange"));
+}
+
+/**
+ * Drop-in replacement for react-router-dom's useSearchParams, scoped to the
+ * hash query string. Does not require a Router context.
+ */
+function useHashSearchParams(): [URLSearchParams, (params: Record<string, string>) => void] {
+  const [searchParams, setSearchParams] = useState<URLSearchParams>(getHashSearchParams);
+
+  useEffect(() => {
+    function handleHashChange() {
+      setSearchParams(getHashSearchParams());
+    }
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
+
+  return [searchParams, setHashSearchParams];
+}
+
 const AppModesContext = createContext<AppContextType>({
   urlParams: appModesDefaults,
   setUrlParams: () => {},
 });
 
 export function AppModesProvider({ children, applyModes }: { children: ReactNode; applyModes: ApplyAppModes }) {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useHashSearchParams();
 
   const urlParams = useMemo(() => parseAppModes(searchParams), [searchParams]);
 
@@ -37,7 +79,7 @@ export function AppModesProvider({ children, applyModes }: { children: ReactNode
   return <AppModesContext.Provider value={value}>{children}</AppModesContext.Provider>;
 }
 
-// Pass a type argument for package-specific params, e.g. useAppModes<{ myFlag: boolean }>().
+// Pass a type argument for package-specific params, e.g. useAppModes<{ myFlag: boolean }>()
 export function useAppModes<T = unknown>(): AppContextType<T> {
   return useContext(AppModesContext) as AppContextType<T>;
 }
