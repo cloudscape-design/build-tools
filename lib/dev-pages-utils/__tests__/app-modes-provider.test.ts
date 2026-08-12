@@ -3,22 +3,28 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { parseAppModes } from "../app-modes";
-import { getHashSearchParams, setHashSearchParams } from "../app-modes-provider";
+import { getHashSearchParams, setHashSearchParams, subscribeToLocationChanges } from "../app-modes-provider";
 
 function stubWindow({ hash, pathname = "/", search = "" }: { hash: string; pathname?: string; search?: string }) {
+  const pushState = vi.fn();
   const replaceState = vi.fn();
-  const dispatchEvent = vi.fn();
+  const listeners: Record<string, Array<() => void>> = {};
+  const addEventListener = vi.fn((type: string, fn: () => void) => {
+    (listeners[type] = listeners[type] ?? []).push(fn);
+  });
+  const removeEventListener = vi.fn((type: string, fn: () => void) => {
+    listeners[type] = (listeners[type] ?? []).filter(l => l !== fn);
+  });
   vi.stubGlobal("window", {
     location: { hash, pathname, search },
-    history: { replaceState },
-    dispatchEvent,
+    history: { pushState, replaceState },
+    addEventListener,
+    removeEventListener,
   });
-  // HashChangeEvent is a DOM global that does not exist in the node test environment.
-  vi.stubGlobal("HashChangeEvent", class extends Event {});
-  return { replaceState, dispatchEvent };
+  return { pushState, replaceState, listeners };
 }
 
-const writtenUrl = (replaceState: ReturnType<typeof vi.fn>) => replaceState.mock.calls[0][2];
+const writtenUrl = (pushState: ReturnType<typeof vi.fn>) => pushState.mock.calls[0][2];
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -42,6 +48,11 @@ describe("getHashSearchParams", () => {
     expect(getHashSearchParams().toString()).toBe("");
   });
 
+  test("returns no params for a bare question mark", () => {
+    stubWindow({ hash: "#/page?" });
+    expect(getHashSearchParams().toString()).toBe("");
+  });
+
   test("keeps params whose value is empty", () => {
     stubWindow({ hash: "#/page?theme=&mode=dark" });
     const params = getHashSearchParams();
@@ -52,6 +63,11 @@ describe("getHashSearchParams", () => {
   test("decodes percent-encoded values", () => {
     stubWindow({ hash: "#/page?label=a%20b%26c%3Dd" });
     expect(getHashSearchParams().get("label")).toBe("a b&c=d");
+  });
+
+  test("decodes + as a space, as URLSearchParams does", () => {
+    stubWindow({ hash: "#/page?label=a+b" });
+    expect(getHashSearchParams().get("label")).toBe("a b");
   });
 
   test("keeps every occurrence of a repeated param", () => {
@@ -75,47 +91,106 @@ describe("getHashSearchParams", () => {
 
 describe("setHashSearchParams", () => {
   test("writes the params after the hash path, preserving their order", () => {
-    const { replaceState } = stubWindow({ hash: "#/my/page" });
+    const { pushState } = stubWindow({ hash: "#/my/page" });
     setHashSearchParams({ mode: "dark", density: "compact" });
-    expect(writtenUrl(replaceState)).toBe("/#/my/page?mode=dark&density=compact");
+    expect(writtenUrl(pushState)).toBe("/#/my/page?mode=dark&density=compact");
+  });
+
+  test("pushes a history entry rather than replacing, as setSearchParams did", () => {
+    const { pushState, replaceState } = stubWindow({ hash: "#/my/page" });
+    setHashSearchParams({ mode: "dark" });
+    expect(pushState).toHaveBeenCalledOnce();
+    expect(replaceState).not.toHaveBeenCalled();
   });
 
   test("replaces pre-existing params instead of merging them", () => {
-    const { replaceState } = stubWindow({ hash: "#/my/page?old=param" });
+    const { pushState } = stubWindow({ hash: "#/my/page?old=param" });
     setHashSearchParams({ mode: "dark" });
-    expect(writtenUrl(replaceState)).toBe("/#/my/page?mode=dark");
+    expect(writtenUrl(pushState)).toBe("/#/my/page?mode=dark");
   });
 
   test("omits the question mark when there are no params", () => {
-    const { replaceState } = stubWindow({ hash: "#/page?old=value" });
+    const { pushState } = stubWindow({ hash: "#/page?old=value" });
     setHashSearchParams({});
-    expect(writtenUrl(replaceState)).toBe("/#/page");
+    expect(writtenUrl(pushState)).toBe("/#/page");
   });
 
   test("preserves the pathname and search of the surrounding URL", () => {
-    const { replaceState } = stubWindow({ hash: "#/page", pathname: "/sub/dir/", search: "?outer=1" });
+    const { pushState } = stubWindow({ hash: "#/page", pathname: "/sub/dir/", search: "?outer=1" });
     setHashSearchParams({ mode: "dark" });
-    expect(writtenUrl(replaceState)).toBe("/sub/dir/?outer=1#/page?mode=dark");
+    expect(writtenUrl(pushState)).toBe("/sub/dir/?outer=1#/page?mode=dark");
   });
 
-  test("notifies listeners with a hashchange event", () => {
-    const { dispatchEvent } = stubWindow({ hash: "#/page" });
-    setHashSearchParams({ mode: "dark" });
-    expect(dispatchEvent).toHaveBeenCalledOnce();
-    expect(dispatchEvent.mock.calls[0][0].type).toBe("hashchange");
+  test("encodes spaces as + so the URL matches URLSearchParams", () => {
+    const { pushState } = stubWindow({ hash: "#/page" });
+    setHashSearchParams({ label: "a b&c=d" });
+    expect(writtenUrl(pushState)).toBe("/#/page?label=a+b%26c%3Dd");
   });
 
   test("encodes values so that they survive a write/read round trip", () => {
-    const { replaceState } = stubWindow({ hash: "#/page" });
+    const { pushState } = stubWindow({ hash: "#/page" });
     setHashSearchParams({ label: "a b&c=d", unicode: "äöü", empty: "" });
 
-    // Feed the URL that was written back into the reader.
-    const url = writtenUrl(replaceState) as string;
+    const url = writtenUrl(pushState) as string;
     stubWindow({ hash: url.slice(url.indexOf("#")) });
     const params = getHashSearchParams();
 
     expect(params.get("label")).toBe("a b&c=d");
     expect(params.get("unicode")).toBe("äöü");
     expect(params.get("empty")).toBe("");
+  });
+});
+
+describe("subscribeToLocationChanges", () => {
+  test("notifies on hashchange and popstate", () => {
+    const { listeners } = stubWindow({ hash: "#/page" });
+    const onChange = vi.fn();
+    subscribeToLocationChanges(onChange);
+
+    listeners.hashchange.forEach(l => l());
+    expect(onChange).toHaveBeenCalledTimes(1);
+    listeners.popstate.forEach(l => l());
+    expect(onChange).toHaveBeenCalledTimes(2);
+  });
+
+  test("notifies when a router navigates with pushState, which fires no event", () => {
+    stubWindow({ hash: "#/page" });
+    const onChange = vi.fn();
+    subscribeToLocationChanges(onChange);
+
+    window.history.pushState(null, "", "/#/other?mode=dark");
+    expect(onChange).toHaveBeenCalledOnce();
+  });
+
+  test("notifies when a router navigates with replaceState", () => {
+    stubWindow({ hash: "#/page" });
+    const onChange = vi.fn();
+    subscribeToLocationChanges(onChange);
+
+    window.history.replaceState(null, "", "/#/other?mode=dark");
+    expect(onChange).toHaveBeenCalledOnce();
+  });
+
+  test("still performs the underlying history call it wraps", () => {
+    const { pushState } = stubWindow({ hash: "#/page" });
+    subscribeToLocationChanges(vi.fn());
+
+    window.history.pushState(null, "", "/#/other");
+    expect(pushState).toHaveBeenCalledWith(null, "", "/#/other");
+  });
+
+  test("restores the original history methods and removes listeners on cleanup", () => {
+    const { pushState, listeners } = stubWindow({ hash: "#/page" });
+    const onChange = vi.fn();
+
+    const unsubscribe = subscribeToLocationChanges(onChange);
+    unsubscribe();
+
+    expect(window.history.pushState).toBe(pushState);
+    expect(listeners.hashchange).toEqual([]);
+    expect(listeners.popstate).toEqual([]);
+
+    window.history.pushState(null, "", "/#/other");
+    expect(onChange).not.toHaveBeenCalled();
   });
 });
