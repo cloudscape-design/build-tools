@@ -109,6 +109,11 @@ describe("getHashSearch", () => {
     expect(getHashSearch()).toBe("");
   });
 
+  test("ignores a question mark that appears inside a nested fragment", () => {
+    stubWindow({ hash: "#/page#section?not=a-query" });
+    expect(getHashSearch()).toBe("");
+  });
+
   test("feeds parseAppModes so the last occurrence of a repeated param wins", () => {
     stubWindow({ hash: "#/page?mode=light&mode=dark" });
     expect(parseAppModes(hashParams()).mode).toBe("dark");

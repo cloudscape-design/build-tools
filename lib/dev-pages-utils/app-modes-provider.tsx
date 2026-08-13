@@ -1,5 +1,6 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+import queryString from "query-string";
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 import {
@@ -16,12 +17,12 @@ import {
  * `/#/some/path?mode=dark` it returns `"mode=dark"`.
  */
 export function getHashSearch(): string {
-  // `location.hash` is everything from the first "#" onwards, so the leading "#"
-  // and any nested fragment are dropped before looking for the query, matching
-  // how react-router parsed a hash location.
-  const [hashPath] = window.location.hash.slice(1).split("#");
-  const queryStart = hashPath.indexOf("?");
-  return queryStart === -1 ? "" : hashPath.slice(queryStart + 1);
+  // The leading "#" has to go first: extract() removes everything from the first
+  // "#" internally, so passing the hash verbatim would always yield an empty
+  // query and silently reset every app mode. Stripping it also lets extract()
+  // handle a nested fragment such as `#/page?mode=dark#section`, and a "?" that
+  // only appears inside that fragment, the way react-router's hash parsing did.
+  return queryString.extract(window.location.hash.slice(1));
 }
 
 // Subscribers to same-document location changes. `pushState` fires no DOM event,
@@ -55,8 +56,13 @@ export function subscribeToLocationChanges(onChange: () => void): () => void {
  */
 export function setHashSearchParams(params: Record<string, string>): void {
   const [hashPath] = window.location.hash.split("?");
-  // URLSearchParams keeps insertion order and encodes spaces as "+", which is
-  // what react-router serialised search params with.
+  // Serialised with URLSearchParams rather than queryString.stringify:
+  // react-router wrote through createSearchParams, which *is* URLSearchParams,
+  // so this keeps insertion order and encodes a space as "+" for a byte-identical
+  // URL. query-string exposes no option for "+" (its encoder is
+  // encodeURIComponent, which emits "%20"), and correcting that afterwards would
+  // mean patching up its output. Reading stays on query-string, which owns the
+  // "?"/"#" boundary rules in getHashSearch above.
   const search = new URLSearchParams(params).toString();
   const newHash = search ? `${hashPath}?${search}` : hashPath;
   const { pathname, search: outerSearch } = window.location;
@@ -92,7 +98,8 @@ function useHashSearchParams(): [URLSearchParams, (params: Record<string, string
 
   // Memoising on the raw query string keeps the identity stable when a location
   // change leaves the query untouched, as react-router's useMemo on
-  // location.search did.
+  // location.search did. URLSearchParams is also what parseAppModes consumes, so
+  // repeated params still resolve last-one-wins exactly as they did on mainline.
   const searchParams = useMemo(() => new URLSearchParams(search), [search]);
 
   return [searchParams, setHashSearchParams];
